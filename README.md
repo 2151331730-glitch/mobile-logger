@@ -47,7 +47,21 @@ CREATE TABLE entries (
 );
 ```
 
-然后给这张表配好 RLS（行级权限）。**这是唯一的安全边界**——匿名 key 是公开的，能读到它的人就能读写表里的数据。
+然后配 RLS（Row Level Security，行级权限）。**这是唯一的安全边界**——匿名 key 是公开的，网页一打开谁都能从 `config.local.js` 里看到它，所以真正的边界只能画在数据库这一层。
+
+只给匿名角色「读 + 写」，不给改和删：
+
+```sql
+ALTER TABLE entries ENABLE ROW LEVEL SECURITY;
+
+CREATE POLICY anon_read   ON entries FOR SELECT TO anon USING (true);
+CREATE POLICY anon_insert ON entries FOR INSERT TO anon WITH CHECK (true);
+-- 不创建 UPDATE / DELETE 策略 = 默认拒绝
+```
+
+效果：知道 key 的人能插入新记录、能看到列表，但**删不掉也改不了任何已有数据**。破坏成本从"删库"降到"多几条垃圾"。
+
+想再严一点（纯采集、页面不显示历史），把 `anon_read` 也去掉，只留 `anon_insert`。
 
 ### 2. 填配置
 
