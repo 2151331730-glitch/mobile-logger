@@ -1,0 +1,10 @@
+# 本地真实配置（含环境地址与 key）
+config.local.js
+
+# 部署副本（由 index.html + config.local.js 拷进去，不入库）
+web/
+
+# 运行时状态
+sync-state.json
+entries_read.txt
+screenshot*.png
